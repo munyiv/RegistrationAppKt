@@ -4,17 +4,20 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import com.example.audreysapp.Api.ApiClient
 import com.example.audreysapp.Api.ApiInterface
 import com.example.audreysapp.databinding.ActivityLoginBinding
-import com.example.audreysapp.models.LoginRequest
-import com.example.audreysapp.models.LoginResponse
+import com.example.audreysapp.UIPackage.LoginRequest
+import com.example.audreysapp.ViewModel.UserViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class LoginActivity : AppCompatActivity() {
     lateinit var binding: ActivityLoginBinding
+    val userViewModel: UserViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding= ActivityLoginBinding.inflate(layoutInflater)
@@ -22,6 +25,16 @@ class LoginActivity : AppCompatActivity() {
         logInStudent()
 
     }
+    override fun onResume(){
+        super.onResume()
+        userViewModel.loginLiveData.observe(this,{lrgResponse ->
+            Toast.makeText(baseContext, "Registration Success", Toast.LENGTH_LONG).show()
+        })
+        userViewModel.errorLiveData.observe(this,{ error ->
+            Toast.makeText(baseContext,error,Toast.LENGTH_LONG).show()
+        })
+    }
+
     fun logInStudent(){
         var error=false
         binding.btnToast.setOnClickListener {
@@ -39,31 +52,12 @@ class LoginActivity : AppCompatActivity() {
             }
             if(!error){
                 binding.btnToast.visibility=View.GONE
-                var lrgRequest=LoginRequest(
+                var lrgRequest= LoginRequest(
                     email =email,
                     password = password
                 )
-                var retrofit = ApiClient.buildApiClient(ApiInterface::class.java)
-                var request= retrofit.logInStudent(lrgRequest)
-                request.enqueue(object :Callback<LoginRequest> {
-                    override fun onResponse(
-                        call: Call<LoginRequest>,
-                        response: Response<LoginRequest>
-                    ) {
-                        if (response.isSuccessful){
-                            Toast.makeText(baseContext,"Login is succesful", Toast.LENGTH_LONG).show()
-                        }else{
-                            Toast.makeText(baseContext,response.errorBody()?.string(), Toast.LENGTH_LONG).show()
-                        }
+                userViewModel.loginStudent(lrgRequest)
 
-                    }
-
-                    override fun onFailure(call: Call<LoginRequest>, t: Throwable) {
-//                        binding.pbRegistration.visibility=View.GONE
-                        Toast.makeText(baseContext,t.message,Toast.LENGTH_LONG).show()
-                    }
-
-                })
             }
 
         }

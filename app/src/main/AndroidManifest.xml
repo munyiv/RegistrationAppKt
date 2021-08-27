@@ -15,8 +15,8 @@
         <activity
             android:name=".LoginActivity"
             android:exported="true" />
-        <activity android:name=".MunyivaActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".UIPackage.MunyivaActivity" />
+        <activity android:name=".UIPackage.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

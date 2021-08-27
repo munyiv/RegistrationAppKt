@@ -1,4 +1,4 @@
-package com.example.audreysapp
+package com.example.audreysapp.models
 
 data class Courses(
     var courseName:String,

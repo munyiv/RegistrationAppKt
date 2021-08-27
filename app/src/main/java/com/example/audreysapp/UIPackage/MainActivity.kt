@@ -1,12 +1,15 @@
-package com.example.audreysapp
+package com.example.audreysapp.UIPackage
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.*
+import androidx.activity.viewModels
 import com.example.audreysapp.Api.ApiClient
 import com.example.audreysapp.Api.ApiInterface
+import com.example.audreysapp.LoginActivity
+import com.example.audreysapp.ViewModel.UserViewModel
 import com.example.audreysapp.databinding.ActivityMainBinding
 import com.example.audreysapp.models.RegistartionResponse
 import com.example.audreysapp.models.RegistrationRequest
@@ -16,6 +19,7 @@ import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
+    val userViewModel:UserViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding= ActivityMainBinding.inflate(layoutInflater)
@@ -23,6 +27,16 @@ class MainActivity : AppCompatActivity() {
         setupSpinner()
         clickRegister()
 
+    }
+    override fun onResume(){
+        super.onResume()
+        userViewModel.registrationLiveData.observe(this,{lrgResponse ->
+            Toast.makeText(baseContext, "Registration Success", Toast.LENGTH_LONG).show()
+
+        })
+        userViewModel.errorLiveData.observe(this,{ error ->
+            Toast.makeText(baseContext,error,Toast.LENGTH_LONG).show()
+        })
     }
     fun setupSpinner(){
 
@@ -35,7 +49,7 @@ class MainActivity : AppCompatActivity() {
 
     fun clickRegister(){
         binding.btnRegister.setOnClickListener {
-            var intent =Intent(baseContext,LoginActivity::class.java)
+            var intent =Intent(baseContext, LoginActivity::class.java)
             startActivity(intent)
         }
         var error = false
@@ -82,27 +96,8 @@ class MainActivity : AppCompatActivity() {
 
 
                 )
-                var retrofit =ApiClient.buildApiClient(ApiInterface::class.java)
-                var request= retrofit.registerStudent(lrqRequest)
-                request.enqueue(object : Callback<RegistartionResponse?> {
-                    override fun onResponse(
-                        call: Call<RegistartionResponse?>,
-                        response: Response<RegistartionResponse?>
-                    ) {
-                        binding.pbRegistration.visibility=View.GONE
-                        if (response.isSuccessful){
-                            Toast.makeText(baseContext,"Registration is succesful",Toast.LENGTH_LONG).show()
-                        }else{
-                            Toast.makeText(baseContext,response.errorBody()?.string(),Toast.LENGTH_LONG).show()
-                        }
-                    }
+                userViewModel.registerStudent(lrqRequest)
 
-                    override fun onFailure(call: Call<RegistartionResponse?>, t: Throwable) {
-                        binding.pbRegistration.visibility=View.GONE
-                        Toast.makeText(baseContext,t.message,Toast.LENGTH_LONG).show()
-
-                    }
-                })
 
             }
         }
