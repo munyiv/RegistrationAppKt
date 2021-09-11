@@ -1,5 +1,6 @@
 package com.example.audreysapp.Api
 
+import com.example.audreysapp.EnrollmentResponse
 import com.example.audreysapp.UIPackage.LoginRequest
 import com.example.audreysapp.models.Courses
 import com.example.audreysapp.models.RegistartionResponse
@@ -17,4 +18,6 @@ interface ApiInterface {
     suspend fun logInStudent(@Body loginRequest: LoginRequest):retrofit2.Response<LoginRequest>
     @GET("/courses")
     suspend fun fetchCourses(@Header("Authorization")token:String):Response<List<Courses>>
+    @POST("/enrolments")
+    suspend fun enrol(@Header("Authorization")token: String):Response<EnrollmentResponse>
 }
